@@ -48,3 +48,29 @@ const layer = new VectorTileLayer({
   })
 });  
 ````
+
+##  Base Layer  
+Base Layer is what you see first it can be OSM, Satellite, Topography, Terrain, any. On top it we have the the Vector Layer that contains the marker, the boundary, roads, rivers, etc.  
+1) OSM-> OpenStreetMap  
+Most common base map.  
+````
+new TileLayer({
+    source: new OSM()
+})    
+````  
+OSM is actually a raster tile layer. Each square you see is an image tile.  
+It contains:  
+  
+Roads  
+Buildings  
+Parks  
+Rivers  
+Labels  
+Cities  
+
+2) Sattelite Layer:  
+Instead of drawings the base layer is actual sattelite photo of that area.  
+
+  
+3) Topography Layer:  
+Topography layer focuses on the dhape of the earth, instead of showing the roads and rivers it focuses on the hills, valleys, rifts, mountains, elevation, contour lines, etc.  
