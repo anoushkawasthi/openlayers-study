@@ -73,4 +73,9 @@ Examples:
 - Displaying roads
 - Showing farm boundaries
 - Highlighting administrative regions
-- Creating interactive maps
+- Creating interactive maps  
+
+  
+    
+### What is a Vector Source?  
+Container or a database that stores vector features 
