@@ -13,9 +13,10 @@ import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
 import Feature from 'ol/Feature';
 import Point from 'ol/geom/Point';
-import { Style, Icon } from 'ol/style';
+import { Style, Icon, Stroke, Fill } from 'ol/style';
 import locationPin from './Assets/location-pin-svgrepo-com.svg'
-
+import LineString from 'ol/geom/LineString'; 
+import Polygon from 'ol/geom/Polygon'; 
 
 
 function MapComponent() {
@@ -85,12 +86,66 @@ function MapComponent() {
       zIndex: 100, 
     });
 
+    const lineCoordinates = [
+      [80.90, 26.85],
+      [81.00, 26.90], 
+      [81.10, 26.82]
+    ].map(coord => fromLonLat(coord));
+
+    const lineFeature = new Feature({
+      geometry: new LineString(lineCoordinates),
+      name: 'My Route'
+    });
+
+    lineFeature.setStyle(new Style({
+      stroke: new Stroke({
+        color: '#ffcc33',
+        width: 4
+      })
+    }));
+
+    const polygonCoordinates = [
+      [
+        [80.70, 26.70], 
+        [80.80, 26.90], 
+        [80.90, 26.70],
+        [80.70, 26.70] 
+      ]
+    ].map(ring => ring.map(coord => fromLonLat(coord)));
+    
+    const polygonFeature = new Feature({
+      geometry: new Polygon(polygonCoordinates),
+      name: 'My Zone'
+    });
+
+    polygonFeature.setStyle(new Style({
+      stroke: new Stroke({
+        color: '#3399CC', // Blue outline
+        width: 3
+      }),
+      fill: new Fill({
+        color: 'rgba(51, 153, 204, 0.4)' 
+      })
+    }));
+
+    const shapesSource = new VectorSource({
+      features: [lineFeature, polygonFeature], 
+    });
+
+    const shapesLayer = new VectorLayer({
+      source: shapesSource,
+      zIndex: 90,
+    });
+
+
+
     const map = new OlMap({
       target: mapElement.current,
       layers: [
         BaseLayer, 
         staticLayerImage, 
-        markerLayer
+        markerLayer,
+        shapesLayer
       ],
       view: new View({
         center: fromLonLat([70.90173629688752,26.85644063234675]), 
