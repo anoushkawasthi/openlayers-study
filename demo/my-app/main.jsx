@@ -9,6 +9,13 @@ import { createRoot } from 'react-dom/client';
 import ImageLayer from 'ol/layer/Image';
 import XYZ from 'ol/source/XYZ';
 import { ImageStatic } from 'ol/source';
+import VectorLayer from 'ol/layer/Vector';
+import VectorSource from 'ol/source/Vector';
+import Feature from 'ol/Feature';
+import Point from 'ol/geom/Point';
+import { Style, Icon } from 'ol/style';
+import locationPin from './Assets/location-pin-svgrepo-com.svg'
+
 
 
 function MapComponent() {
@@ -51,14 +58,40 @@ function MapComponent() {
       opacity:0.7
     });
 
+    const markerGeometry= new Point(fromLonLat([80.90173629688752,26.85644063234675]));
+    const markerFeature = new Feature({
+      geometry: markerGeometry,
+      name:'My First Marker'
+    });
+
+    markerFeature.setStyle(
+      new Style({
+        image: new Icon({
+          src: locationPin,
+          scale: 0.04,
+          anchor: [0.5, 0.5],
+        }),
+      })
+    );
+
+    const vectorSource = new VectorSource({
+      features: [markerFeature],
+    });
+
+    const markerLayer = new VectorLayer({
+      source: vectorSource,
+      zIndex: 100, 
+    });
+
     const map = new OlMap({
       target: mapElement.current,
       layers: [
         BaseLayer, 
-        staticLayerImage
+        staticLayerImage, 
+        markerLayer
       ],
       view: new View({
-        center: fromLonLat([95.79, 25.79]), 
+        center: fromLonLat([80.90173629688752,26.85644063234675]), 
         zoom: 6,
       }),
     });
