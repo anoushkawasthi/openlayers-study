@@ -17,6 +17,7 @@ import { Style, Icon, Stroke, Fill } from 'ol/style';
 import locationPin from './Assets/location-pin-svgrepo-com.svg'
 import LineString from 'ol/geom/LineString'; 
 import Polygon from 'ol/geom/Polygon'; 
+import Overlay from 'ol/Overlay';
 
 
 function MapComponent() {
@@ -25,6 +26,9 @@ function MapComponent() {
   const [layerType,setLayerType]=useState('osm');
 
   const currentLocation=useRef(null);
+
+  const popupElement = useRef(null);
+  const [popupText, setPopupText] = useState("");
   
   useEffect(() => {
     if (!mapElement.current) return;
@@ -155,6 +159,34 @@ function MapComponent() {
 
     mapRef.current =map;
 
+    const popupOverlay= new Overlay({
+      element: popupElement.current,
+      positioning: 'bottom-center',
+      stopEvent:false,
+      offset:[0,-15]
+    })
+
+    map.addOverlay(popupOverlay);
+    map.on('singleclick',(event)=>{
+      const ClickFeature= map.forEachFeatureAtPixel(event.pixel, (feature)=>{
+        return feature;
+      });
+
+
+      if(ClickFeature){
+
+        if (!popupOverlay.getElement() && popupElement.current) {
+          popupOverlay.setElement(popupElement.current);
+        }
+        const featureName = ClickFeature.get('name') || "Unnamed Shape";
+        setPopupText(featureName);
+        popupOverlay.setPosition(event.coordinate);
+      }else{
+        setPopupText("");
+        popupOverlay.setPosition(undefined);
+      }
+    })
+
     let watchId;
 
     if('geolocation' in navigator){
@@ -238,6 +270,22 @@ function MapComponent() {
         </button>
       </div>
       <div ref={mapElement} style={{ width: '100%', height: '100%' }} />
+      <div 
+        ref={popupElement} 
+        style={{
+          background: 'white',
+          padding: '8px 12px',
+          borderRadius: '8px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+          border: '2px solid #3399CC',
+          pointerEvents: 'none', // Prevents the popup from blocking mouse clicks
+          // If popupText is empty, hide the whole container visually
+          display: popupText ? 'block' : 'none', 
+          transform: 'translate(-50%, -100%)' // Centers it perfectly over the pin
+        }}
+      >
+        <b>📍 {popupText}</b>
+      </div>
     </div>
   );
 }
