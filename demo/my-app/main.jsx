@@ -15,6 +15,7 @@ import Feature from 'ol/Feature';
 import Point from 'ol/geom/Point';
 import { Style, Icon } from 'ol/style';
 import locationPin from './Assets/location-pin-svgrepo-com.svg'
+import Geolocation from 'ol/Geolocation';
 
 
 
@@ -58,7 +59,7 @@ function MapComponent() {
       opacity:0.7
     });
 
-    const markerGeometry= new Point(fromLonLat([80.90173629688752,26.85644063234675]));
+    const markerGeometry= new Point(fromLonLat([70.90173629688752,26.85644063234675]));
     const markerFeature = new Feature({
       geometry: markerGeometry,
       name:'My First Marker'
@@ -91,12 +92,35 @@ function MapComponent() {
         markerLayer
       ],
       view: new View({
-        center: fromLonLat([80.90173629688752,26.85644063234675]), 
-        zoom: 6,
+        center: fromLonLat([70.90173629688752,26.85644063234675]), 
+        zoom: 8,
       }),
     });
+
     mapRef.current =map;
-    return () => map.setTarget(null); 
+
+    const geolocation = new Geolocation({
+      projection: map.getView().getProjection(),
+      trackingOptions: {
+        enableHighAccuracy: true,
+        maximumAge: 2000,
+      },
+    });
+    geolocation.setTracking(true);
+    geolocation.on('change:position',()=>{
+      const coordinates=geolocation.getPosition();
+      if(coordinates){
+        markerGeometry.setCoordinates(coordinates);
+        map.view().animate({
+          center: coordinates, duration: 1000
+        });
+      }
+    });
+
+    return () => {
+      geolocation.setTracking(false);
+      map.setTarget(null)
+    }; 
   }, []);
 
   useEffect(()=>{
