@@ -23,30 +23,57 @@ import { click } from "ol/events/condition";
 
 import Overlay from "ol/Overlay";
 
-const polyCoords = [
-  [77.15, 28.6],
-  [77.25, 28.6],
-  [77.25, 28.7],
-  [77.15, 28.7],
-  [77.15, 28.6],
+const polygons = [
+  {
+    id: 1,
+    name: "Farm A",
+    coordinates: [
+      [77.15, 28.60],
+      [77.25, 28.60],
+      [77.25, 28.70],
+      [77.15, 28.70],
+      [77.15, 28.60],
+    ],
+  },
+  {
+    id: 2,
+    name: "Farm B",
+    coordinates: [
+      [77.30, 28.65],
+      [77.40, 28.65],
+      [77.40, 28.75],
+      [77.30, 28.75],
+      [77.30, 28.65],
+    ],
+  },
+  {
+    id: 3,
+    name: "Farm C",
+    coordinates: [
+      [77.45, 28.55],
+      [77.55, 28.55],
+      [77.55, 28.65],
+      [77.45, 28.65],
+      [77.45, 28.55],
+    ],
+  },
 ];
-//1
-console.log(polyCoords);
-const convertedCoords= polyCoords.map(coord => fromLonLat(coord));
-//2
-console.log(convertedCoords);
-const polyGeometry= new Polygon([convertedCoords,]);
-//3
-console.log(polyGeometry);
-const polyFeature= new Feature({
-  geometry: polyGeometry,
-})
-//4
-console.log(polyFeature);
-const vectorPoly= new VectorSource();
-vectorPoly.addFeature(polyFeature);
-//5
-console.log(vectorPoly);
+
+const vectorPoly = new VectorSource();
+
+polygons.forEach((polygon) => {
+  const converted = polygon.coordinates.map(coord =>
+      fromLonLat(coord)
+  );
+  const feature = new Feature({
+      geometry: new Polygon([converted]),
+      id: polygon.id,
+      name: polygon.name,
+  });
+  vectorPoly.addFeature(feature);
+  console.log(converted);
+});
+
 const vectorLayerPoly = new VectorLayer({
   source: vectorPoly,
 });
@@ -90,7 +117,7 @@ function App() {
     });
     const popupOverlay=new Overlay({
       element: popupRef.current,
-      positioning: "botton-center",
+      positioning: "bottom-center",
       stopEvent: false,
       offset:[0,-15],
     });
@@ -115,10 +142,13 @@ function App() {
       const convCoords= coordinates[0].map((coord)=> 
         toLonLat(coord)
       );
+      const fname=feature.get("name");
 
       popupRef.current.innerHTML = `
+      <h4> ${fname} </h4>
       <h3>Polygon Coordinates</h3>
-      ${convCoords
+      <br>
+      ${convCoords  
         .map(
           (coord) =>
             `<div>
